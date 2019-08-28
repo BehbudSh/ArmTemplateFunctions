@@ -1,0 +1,87 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "NICName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the network card"
+            }
+        },
+        "virtualNetworkName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of Virtual Network for NIC"
+            }
+        },
+        "subnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of subnet for NIC"
+            }
+        },
+        "IPAllocationMethod": {
+            "type": "string",
+            "defaultValue": "Dynamic",
+            "allowedValues": [
+                "Dynamic",
+                "Static"
+            ]
+        },
+        "PublicIpNAme": {
+            "defaultValue": "pip",
+            "type": "string"
+        }
+    },
+    "variables": {
+        "pipvar": "[concat('Microsoft.Network/publicIPAddresses/', parameters('PublicIpNAme'))]",
+        "pipid": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('PublicIpNAme'))]"
+    },
+    "resources": [
+        {
+            "name": "[parameters('PublicIpNAme')]",
+            "condition": "[not(equals(parameters('PublicIpName'), 'pip'))]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2019-06-01",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "[parameters('IPAllocationMethod')]",
+                "dnsSettings": {
+                    "domainNameLabel": "[parameters('PublicIpNAme')]"
+                }
+            }
+        },
+        {
+            "apiVersion": "2019-06-01",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[parameters('NICName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "parameters('NICName')"
+            },
+            "dependsOn": [
+                "[if(equals(parameters('PublicIpNAme'), parameters('PublicIpNAme')), variables('pipvar'), json('null'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "[parameters('IPAllocationMethod')]",
+                            "subnet": {
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), '/subnets/',parameters('subnetName'))]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[if(equals(parameters('PublicIpNAme'), parameters('PublicIpNAme')), variables('pipid'), json('null'))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {}
+}
