@@ -4,6 +4,9 @@
     "parameters": {
       "NetworkInterfaceType": {
         "value": "Public"
+      },
+      "PublicIpNAme": {
+        "value": "vnetpip"
       }
     }
   }
