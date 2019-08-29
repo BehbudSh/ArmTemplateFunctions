@@ -63,7 +63,7 @@
                 "displayName": "parameters('NICName')"
             },
             "dependsOn": [
-                "[if(equals(parameters('PublicIpNAme'), parameters('PublicIpNAme')), variables('pipvar'), json('null'))]"
+                "[if(not(equals(parameters('PublicIpNAme'), 'pip')), variables('pipvar'), json('null'))]"
             ],
             "properties": {
                 "ipConfigurations": [
@@ -75,7 +75,7 @@
                                 "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), '/subnets/',parameters('subnetName'))]"
                             },
                             "publicIPAddress": {
-                                "id": "[if(equals(parameters('PublicIpNAme'), parameters('PublicIpNAme')), variables('pipid'), json('null'))]"
+                                "id": "[if(not(equals(parameters('PublicIpNAme'), 'pip')), variables('pipid'), json('null'))]"
                             }
                         }
                     }
