@@ -33,27 +33,8 @@
             "type": "string"
         }
     },
-    "variables": {
-        "pipvar": "[concat('Microsoft.Network/publicIPAddresses/', parameters('PublicIpNAme'))]",
-        "pipid": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('PublicIpNAme'))]"
-    },
+    "variables": {},
     "resources": [
-        {
-            "name": "[parameters('PublicIpNAme')]",
-            "condition": "[not(equals(parameters('PublicIpName'), 'pip'))]",
-            "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2019-06-01",
-            "location": "[resourceGroup().location]",
-            "sku": {
-                "name": "Basic"
-            },
-            "properties": {
-                "publicIPAllocationMethod": "[parameters('IPAllocationMethod')]",
-                "dnsSettings": {
-                    "domainNameLabel": "[parameters('PublicIpNAme')]"
-                }
-            }
-        },
         {
             "apiVersion": "2019-06-01",
             "type": "Microsoft.Network/networkInterfaces",
@@ -62,9 +43,7 @@
             "tags": {
                 "displayName": "parameters('NICName')"
             },
-            "dependsOn": [
-                "[if(not(equals(parameters('PublicIpNAme'), 'pip')), variables('pipvar'), json('null'))]"
-            ],
+            "dependsOn": [],
             "properties": {
                 "ipConfigurations": [
                     {
@@ -75,8 +54,8 @@
                                 "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), '/subnets/',parameters('subnetName'))]"
                             },
                             "publicIPAddress": {
-                                "id": "[if(not(equals(parameters('PublicIpNAme'), 'pip')), variables('pipid'), json('null'))]"
-                            }
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('PublicIpNAme') )]"
+                            }                       
                         }
                     }
                 ]
