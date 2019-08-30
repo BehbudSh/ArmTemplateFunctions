@@ -1,0 +1,80 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "VMName": {
+            "type": "string"
+        },
+        "WindowsOSVersion": {
+            "type": "string",
+            "defaultValue": "2016-Datacenter",
+            "allowedValues": [
+                "2008-R2-SP1",
+                "2012-Datacenter",
+                "2012-R2-Datacenter",
+                "2016-Datacenter"
+            ]
+        },
+        "AdminUsername": {
+            "type": "string"
+        },
+        "AdminPassword": {
+            "type": "securestring"
+        },
+        "NicName": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "VmSize": "Standard_D2_v2",
+        "ImagePublisher": "MicrosoftWindowsServer",
+        "ImageOffer": "WindowsServer",
+        "vmOSDiskName": "[concat(parameters('VMName'), '-osdisk')]"
+    },
+    "resources": [
+        {
+            "name": "[parameters('VMName')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2018-06-01",
+            "dependsOn": [],
+            "tags": {
+                "displayName": "[parameters('VMName')]"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[variables('VmSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('VMName')]",
+                    "adminUsername": "[parameters('AdminUsername')]",
+                    "adminPassword": "[parameters('AdminPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[variables('ImagePublisher')]",
+                        "offer": "[variables('ImageOffer')]",
+                        "sku": "[parameters('WindowsOSVersion')]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[variables('vmOSDiskName')]",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS"
+                        },
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[parameters('NicName')]"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

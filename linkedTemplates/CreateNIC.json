@@ -57,5 +57,10 @@
             }
         }
     ],
-    "outputs": {}
+    "outputs": {
+        "nicresource": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('NICName'))]"
+        }
+    }
 }

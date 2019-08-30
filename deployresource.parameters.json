@@ -6,10 +6,13 @@
       "value": "mypip"
     },
     "DeployPublicIP": {
-      "value": "no"
+      "value": "yes"
     },
     "VirtualNetworkName": {
       "value": "myvnet"
+    },
+    "CreateWinVMorLinuxVM": {
+      "value": "Linux"
     }
   }
 }

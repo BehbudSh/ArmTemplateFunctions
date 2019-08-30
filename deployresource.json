@@ -26,6 +26,13 @@
         },
         "VirtualNetworkName": {
             "type": "string"
+        },
+        "CreateWinVMorLinuxVM": {
+            "type": "string",
+            "allowedValues": [
+                "Windows",
+                "Linux"
+            ]
         }
     },
     "variables": {},
@@ -91,6 +98,66 @@
                     },
                     "DeployPublicIP": {
                         "value": "[parameters('deployPublicIP')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[equals(parameters('CreateWinVMorLinuxVM'), 'Windows')]",
+            "name": "CreateWinVM",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-09-01",
+            "dependsOn": [
+                "CreateNIC"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/linkedTemplates/CreateWinVM.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "VMName": {
+                        "value": "WindowsVM"
+                    },
+                    "AdminUsername": {
+                        "value": "Behbud"
+                    },
+                    "AdminPassword": {
+                        "value": "A123456a"
+                    },
+                    "NicName": {
+                        "value": "[reference('CreateNIC').outputs.nicresource.value]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[equals(parameters('CreateWinVMorLinuxVM'), 'Linux')]",
+            "name": "CreateLinuxVM",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-09-01",
+            "dependsOn": [
+                "CreateNIC"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/linkedTemplates/CreateLinuxVM.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "VMName": {
+                        "value": "LinuxVM"
+                    },
+                    "AdminUsername": {
+                        "value": "Behbud"
+                    },
+                    "adminPasswordOrKey": {
+                        "value": "A123456a"
+                    },
+                    "NicName": {
+                        "value": "[reference('CreateNIC').outputs.nicresource.value]"
                     }
                 }
             }
