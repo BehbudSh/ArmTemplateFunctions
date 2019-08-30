@@ -7,14 +7,6 @@
             "metadata": {
                 "description": "Name of the Public IP resource"
             }
-        },
-        "IPAllocationMethod": {
-            "type": "string",
-            "defaultValue": "Dynamic",
-            "allowedValues": [
-                "Dynamic",
-                "Static"
-            ]
         }
     },
     "variables": {},
@@ -28,12 +20,17 @@
                 "name": "Basic"
             },
             "properties": {
-                "publicIPAllocationMethod": "[parameters('IPAllocationMethod')]",
+                "publicIPAllocationMethod": "Dynamic",
                 "dnsSettings": {
                     "domainNameLabel": "[parameters('PublicIpNAme')]"
                 }
             }
         }
     ],
-    "outputs": {}
+    "outputs": {
+        "publicip": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('PublicIpNAme'))]"
+        }
+    }
 }

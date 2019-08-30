@@ -7,12 +7,6 @@
             "metadata": {
                 "description": "Name of Virtual Network for NIC"
             }
-        },
-        "subnetName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of subnet for NIC"
-            }
         }
     },
     "variables": {},
@@ -33,7 +27,7 @@
                 },
                 "subnets": [
                     {
-                        "name": "[parameters('subnetName')]",
+                        "name": "subnet",
                         "properties": {
                             "addressPrefix": "10.0.0.0/24"
                         }
@@ -42,5 +36,10 @@
             }
         }
     ],
-    "outputs": {}
+    "outputs": {
+        "subnet": {
+            "type": "string",
+            "value": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), '/subnets/', 'subnet')]"
+        }
+    }
 }

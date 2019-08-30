@@ -8,32 +8,29 @@
                 "description": "Name of the network card"
             }
         },
-        "virtualNetworkName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of Virtual Network for NIC"
-            }
-        },
         "subnetName": {
             "type": "string",
             "metadata": {
                 "description": "Name of subnet for NIC"
             }
         },
-        "IPAllocationMethod": {
-            "type": "string",
-            "defaultValue": "Dynamic",
-            "allowedValues": [
-                "Dynamic",
-                "Static"
-            ]
-        },
         "PublicIpNAme": {
             "defaultValue": "pip",
             "type": "string"
+        },
+        "DeployPublicIP": {
+            "type": "string",
+            "allowedValues": [
+                "yes",
+                "no"
+            ]
         }
     },
-    "variables": {},
+    "variables": {
+        "publicIPAddress": {
+            "id": "[parameters('PublicIpNAme')]"
+          }
+    },
     "resources": [
         {
             "apiVersion": "2019-06-01",
@@ -49,13 +46,11 @@
                     {
                         "name": "ipconfig1",
                         "properties": {
-                            "privateIPAllocationMethod": "[parameters('IPAllocationMethod')]",
+                            "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
-                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), '/subnets/',parameters('subnetName'))]"
+                                "id": "[parameters('subnetName')]"
                             },
-                            "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('PublicIpNAme') )]"
-                            }                       
+                            "publicIPAddress": "[if(equals(parameters('DeployPublicIP'), 'yes'), variables('publicIPAddress'), json('null'))]"                  
                         }
                     }
                 ]

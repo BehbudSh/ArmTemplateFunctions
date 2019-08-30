@@ -15,22 +15,20 @@
             }
         },
         "PublicIpNAme": {
-            "defaultValue": "pip",
             "type": "string"
         },
-        "IPAllocationMethod": {
+        "DeployPublicIP": {
             "type": "string",
-            "defaultValue": "Dynamic",
             "allowedValues": [
-                "Dynamic",
-                "Static"
+                "yes",
+                "no"
             ]
+        },
+        "VirtualNetworkName": {
+            "type": "string"
         }
     },
-    "variables": {
-        "NetworkName": "vnet",
-        "Subnet1Name": "subnet1"
-    },
+    "variables": {},
     "resources": [
         {
             "name": "CreateVnet",
@@ -44,15 +42,13 @@
                 },
                 "parameters": {
                     "virtualNetworkName": {
-                        "value": "[variables('NetworkName')]"
-                    },
-                    "subnetName": {
-                        "value": "[variables('Subnet1Name')]"
+                        "value": "[parameters('VirtualNetworkName')]"
                     }
                 }
             }
         },
         {
+            "condition": "[equals(parameters('DeployPublicIP'), 'yes')]",
             "name": "CreatePIP",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-09-01",
@@ -65,9 +61,6 @@
                 "parameters": {
                     "PublicIpNAme": {
                         "value": "[parameters('PublicIpNAme')]"
-                    },
-                    "IPAllocationMethod": {
-                        "value": "[parameters('IPAllocationMethod')]"
                     }
                 }
             }
@@ -76,6 +69,10 @@
             "name": "CreateNIC",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-09-01",
+            "dependsOn": [
+                "CreateVnet",
+                "CreatePIP"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -86,21 +83,18 @@
                     "NICName": {
                         "value": "nic"
                     },
-                    "virtualNetworkName": {
-                        "value": "[variables('NetworkName')]"
-                    },
                     "subnetName": {
-                        "value": "[variables('Subnet1Name')]"
-                    },
-                    "IPAllocationMethod": {
-                        "value": "Dynamic"
+                        "value": "[reference('CreateVnet').outputs.subnet.value]"
                     },
                     "PublicIpNAme": {
-                        "value": "[parameters('PublicIpNAme')]"
+                        "value": "[if(equals(parameters('DeployPublicIP'), 'yes'), reference('CreatePIP').outputs.publicip.value, '')]"
+                    },
+                    "DeployPublicIP": {
+                        "value": "[parameters('deployPublicIP')]"
                     }
                 }
             }
-        } 
+        }
     ],
     "outputs": {}
 }
