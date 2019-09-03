@@ -33,6 +33,13 @@
                 "Windows",
                 "Linux"
             ]
+        },
+        "VhdOrManagedDisk": {
+            "type": "string",
+            "allowedValues": [
+                "vhd",
+                "ManagedDisk"
+            ]
         }
     },
     "variables": {},
@@ -108,7 +115,8 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-09-01",
             "dependsOn": [
-                "CreateNIC"
+                "CreateNIC",
+                "CreateStorage"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -128,6 +136,12 @@
                     },
                     "NicName": {
                         "value": "[reference('CreateNIC').outputs.nicresource.value]"
+                    },
+                    "StorageName": {
+                        "value": "[if(equals(parameters('VhdOrManagedDisk'), 'vhd'), reference('CreateStorage').outputs.storagename.value, '')]"
+                    },
+                    "VhdOrManagedDisk": {
+                        "value": "[parameters('VhdOrManagedDisk')]"
                     }
                 }
             }
@@ -159,6 +173,19 @@
                     "NicName": {
                         "value": "[reference('CreateNIC').outputs.nicresource.value]"
                     }
+                }
+            }
+        },
+        {
+            "condition": "[equals(parameters('VhdOrManagedDisk'), 'vhd')]",
+            "name": "CreateStorage",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2016-09-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('_artifactsLocation'), '/linkedTemplates/CreateStorage.json', parameters('_artifactsLocationSasToken'))]",
+                    "contentVersion": "1.0.0.0"
                 }
             }
         }

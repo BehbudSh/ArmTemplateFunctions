@@ -23,13 +23,30 @@
         },
         "NicName": {
             "type": "string"
+        },
+        "StorageName": {
+            "type": "string"
+        },
+        "VhdOrManagedDisk": {
+            "type": "string",
+            "allowedValues": [
+                "vhd",
+                "ManagedDisk"
+            ]
         }
     },
     "variables": {
         "VmSize": "Standard_D2_v2",
         "ImagePublisher": "MicrosoftWindowsServer",
         "ImageOffer": "WindowsServer",
-        "vmOSDiskName": "[concat(parameters('VMName'), '-osdisk')]"
+        "VMStorageAccountContainerName": "vhds",
+        "vmOSDiskName": "[concat(parameters('VMName'), '-osDisk')]",
+        "Vhd": {
+            "uri": "[concat('http://', parameters('StorageName'),'.blob.core.windows.net/',variables('VMStorageAccountContainerName'),'/',variables('vmOSDiskName'), '.vhd')]"
+        },
+        "ManagedDisk": {
+            "storageAccountType": "StandardSSD_LRS"
+        }
     },
     "resources": [
         {
@@ -59,9 +76,8 @@
                     },
                     "osDisk": {
                         "name": "[variables('vmOSDiskName')]",
-                        "managedDisk": {
-                            "storageAccountType": "StandardSSD_LRS"
-                        },
+                        "managedDisk": "[if(equals(parameters('VhdOrManagedDisk'), 'ManagedDisk'), variables('ManagedDisk'), json('null'))]",
+                        "vhd": "[if(equals(parameters('VhdOrManagedDisk'), 'vhd'), variables('Vhd'), json('null'))]",
                         "caching": "ReadWrite",
                         "createOption": "FromImage"
                     }

@@ -12,7 +12,10 @@
       "value": "myvnet"
     },
     "CreateWinVMorLinuxVM": {
-      "value": "Linux"
+      "value": "Windows"
+    },
+    "VhdOrManagedDisk": {
+      "value": "ManagedDisk"
     }
   }
 }
